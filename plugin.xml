@@ -41,6 +41,7 @@
         </visibility>
       </property>
       <property key="assignTo" label="Assign To" type="string" description="Name of the person to which the ticket will be assigned to." default="" multiline="false" />
+      <property key="groupName" label="Group Name" type="string" description="Alert group, system name, System Profile etc..." default="" multiline="false" />
       <property key="impact" label="Impact" type="list" description="My property description ..." default="3 - Low">
         <list>
           <item value="1 - High" />
