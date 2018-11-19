@@ -73,6 +73,9 @@ public class ServiceNowAction implements Action {
 	private final static String PARAM_PRIORITY = "priority";
 	private final static String PARAM_DOMAIN_APPEND = "domainAppend";
 	
+	//Parameter for specific System Profile or Organization
+	private final static String PARAM_GROUP_NAME = "groupName";
+	
 	private String domainAppend;
 	private String url;
 	private String authString;
@@ -91,6 +94,7 @@ public class ServiceNowAction implements Action {
 	private int proxyPort;
 	private String proxyUserName;
 	private String proxyPassword;
+	private String groupName;
 	
 	/**
 	 * Initializes the Action Plugin. This method is always 
@@ -123,6 +127,9 @@ public class ServiceNowAction implements Action {
 		urgency = env.getConfigString(PARAM_URGENCY);
 		priority = env.getConfigString(PARAM_PRIORITY);
 		domainAppend = env.getConfigString(PARAM_DOMAIN_APPEND);
+		
+		//Group name for Grouping Dynatrace Environments
+		groupName = env.getConfigString(PARAM_GROUP_NAME);		
 
 		useProxy = env.getConfigBoolean(PARAM_USE_PROXY).booleanValue();
 		if (useProxy) {
@@ -290,7 +297,8 @@ public class ServiceNowAction implements Action {
 	private String buildPostBody(ActionEnvironment env) {
 		Map<String, String> jObj = new LinkedHashMap<String, String>();
 		jObj.put("sysparm_action", "insert");
-		jObj.put("assignment_group", assignTo);
+		//jObj.put("assignment_group", assignTo);
+		jObj.put("assignment_group", assignmentGroup);
 		jObj.put("knowledge", "false");
 		jObj.put("known_error", "false");
 
@@ -311,7 +319,8 @@ public class ServiceNowAction implements Action {
 			incID = i.getKey().getUUID();
 			dtProfile = i.getKey().getSystemProfile();
 			startTime = i.getStartTime();
-			shrtDesc = i.getMessage();
+			//shrtDesc = i.getMessage();
+
 			
 			Collection<Violation> violations = i.getViolations(); 
 			for (Violation v : violations) { 
@@ -334,6 +343,8 @@ public class ServiceNowAction implements Action {
 			} 
 			incidentRule = i.getIncidentRule().getName(); 
 //			incidentSeverity = i.getSeverity(); 
+
+			shrtDesc = "[Dynatrace Appmon] Ambiente: " + groupName + " - " + incidentRule + " - " + split;
 		}
 /*		String severity="0";
 		if(incidentSeverity == Incident.Severity.Informational)
@@ -343,8 +354,10 @@ public class ServiceNowAction implements Action {
 		if(incidentSeverity == Incident.Severity.Error)
 			severity = "1";
 */
-		String summary = "Incident:" + incidentRule +", Server: " + cmdbci + ", Measure:" + split + ", TriggeredValue:" + triggeredValue + ", ThresholdValue:" + thresholdValue + ", startTime:" + startTime + "| Error Message : " + shrtDesc;
-
+		//String summary = "TEST Incident:" + incidentRule +", Server: " + cmdbci + ", Measure:" + split + ", TriggeredValue:" + triggeredValue + ", ThresholdValue:" + thresholdValue + ", startTime:" + startTime + "| Error Message : " + shrtDesc;
+		String summary = "[Dynatrace Appmon] Ambiente: " + groupName + "\nGrupoDesignador: " + assignmentGroup + "\nIncident: " + incidentRule +"\nCMDB Item: " + cmdbci + "\nMeasure: " + split + "\nTriggeredValue: " + triggeredValue + "\nThresholdValue: " + thresholdValue + "\nstartTime: " + startTime + "\nError Message: " + shrtDesc;
+		
+		
 		log.log(Level.FINER, "Summary=" + summary);
 		jObj.put("assigned_to", assignTo);
  		jObj.put("short_description", shrtDesc);
